@@ -15,8 +15,18 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from django.contrib.auth import views as auth_views
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path("",include('Core.urls')),
-]
+    path("jobs/",include('Jobs.urls')),
+    path('logout/', auth_views.LogoutView.as_view(), name="logout"),
+    path('notebook/',include('Notebook.urls')),
+    path("playground/",include('Playground.urls')),
+    path("coding/",include('Coding.urls')),
+    path("discuss/",include('discuss.urls')),
+    path('ckeditor/',include("ckeditor_uploader.urls")),
+]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

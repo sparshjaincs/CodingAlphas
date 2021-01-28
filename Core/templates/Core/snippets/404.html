@@ -1,0 +1,17 @@
+{% extends 'Core/snippets/base.html' %}
+{% load static %}
+{% block navbar %}
+{% include 'Core/snippets/navbar.html' %}
+{% endblock %}
+
+{% block body %}
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            <div class="mt-5 pt-5">
+                <img src="{% static 'svg/undraw_page_not_found_su7k.svg'  %}">
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

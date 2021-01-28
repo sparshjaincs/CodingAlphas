@@ -1,0 +1,140 @@
+{% extends 'Core/snippets/base.html' %}
+{% load crispy_forms_tags %}
+{% load shortcut %}
+{% block navbar %}
+{% include 'Core/snippets/navbar.html' %}
+{% endblock %}
+{% block jscss %}
+<script
+    src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.0.943/pdf.min.js">
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.3.0/jspdf.umd.min.js"></script>
+{% endblock %}
+{% block style %}
+#footer {
+    position:fixed;
+    right:0;
+    bottom:0;
+    margin-bottom:50px;
+    margin-right:60px;
+}
+
+
+{% endblock %}
+{% block body %}
+<div id="footer">
+    <button type="button" class="btn shadow" style="font-size: 20px;height:50px; width:50px; border-radius:50%;background-color: #C42D63;  " data-toggle="modal" data-target=".bd-example-modal-lg">
+        <i class="fa fa-plus "></i>
+    </button>
+
+   
+   
+</div>
+<div class="container">
+    <div id="myModal" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+          <div class="modal-content">
+            
+              <div class="modal-body" >
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+
+                  <form method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    {{form|crispy}}
+
+                    {{form.media}}
+                    <button type="submit" class="btn" style="background-color: #C42D63;">
+                        Save
+                    </button>
+                  </form>
+              </div>
+          </div>
+        </div>
+      </div>
+    <div class="row mt-5">
+        <div class="col-12">
+            <div>
+                <p class="text-muted mt-3" style="font-size: 25px;">
+                    <a href="{% url 'notebook' %}" style="text-decoration: none; " class="text-muted">
+                    <i style="color:#C42D63; font-size: 30px;" class="fa fa-sticky-note-o" aria-hidden="true"></i> My Notes
+                </a>
+                </p>
+            </div>
+
+
+        </div>
+        <div class="col-12">
+            <div class="row">
+                {% if user.notebookuser.all.count == 0 %}
+
+                <div style="display: flex; justify-content: center; width:100%; align-items: center; height:500px; flex-direction: column;">
+                    <p class="text-muted">You have no notes here.</p>
+                  
+                    <p class="text-muted" style="margin-top: -10px;">Take notes by clicking on the "+" Button on the bottom right of your screen. </p>
+                </div>
+                {% else %}
+            {% for data in user.notebookuser.all %}
+                <div class="card mt-2" style="width: 100%; border-left:4px solid #C42D63">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <h5 class="text-muted">{{data.heading}}</h5> 
+                        <div style="display: flex; justify-content: flex-end;">
+                            <a title="Delete" data-toggle="tooltip" class="mr-3" href="/notebook/delete/{{data.id}}/"><i class="fa fa-trash"></i></a>
+                            <a title="Edit" data-toggle="tooltip" class="mr-3" href="/notebook/edit/{{data.id}}/"><i class="fa fa-edit "></i></a>
+                            <a onclick="print('{{data.id}}')" title="Print" data-toggle="tooltip" class=""><i class="fa fa-print"></i></a>
+                        </div>
+                      
+                    </div>
+                       <p class="text-muted" style="font-size: 12px; margin-top: -5px;">
+                           {{data.created}}
+                       </p>
+                       <div class="classcontent" id="desc{{data.id}}" style=" ">
+
+                        {{data.desciption|safe}}
+                        {% if data.text|compare_length:300%}
+                        ... <a href="#" style="font-size: 13px;"  data-toggle="collapse" data-target="#demo{{data.id}}" onclick="document.getElementById('desc{{data.id}}').style.display = 'none';" >Read More..</a>
+                        {% endif %}
+                    </div>
+                    <div id="demo{{data.id}}" class="collapse">
+                        <div>
+                            <a style="font-size: 13px; " href="#"  data-toggle="collapse" data-target="#demo{{data.id}}" onclick="document.getElementById('desc{{data.id}}').style.display = 'block';">Show Less</a>
+                        </div>
+                       {{data.text|safe}}
+                      </div>
+                    </div>
+                </div>
+                
+
+                
+            {% endfor %}
+            {% endif %}
+        </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
+
+{% block script %}
+{% if edit %}
+
+    <script type="text/javascript">
+    $(window).on('load',function(){
+        $('#myModal').modal('show');
+    });
+</script>
+
+{% endif %}
+
+<script>
+    function print(id){
+        var value = document.getElementById('demo'+id).innerHTML;
+        const doc = new jsPDF();
+        doc.text(value);
+        doc.save("a4.pdf");
+    }
+</script>
+
+{% endblock %}
